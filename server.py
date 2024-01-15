@@ -4,7 +4,7 @@ import sys
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-ipaddress = '192.168.1.2'
+ipaddress = socket.gethostname()
 
 port = 6001
 server.bind((ipaddress, port))
@@ -36,6 +36,7 @@ def recive_msg(conn, address):
 
 
 while connected:
+
     conn, address = server.accept()
     conn.send("connection succeful provide a screen name : --->".encode())
 

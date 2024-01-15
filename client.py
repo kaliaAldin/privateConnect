@@ -1,35 +1,48 @@
 import socket
 import sys
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-ipaddress = '192.168.1.2'
+
+ipaddress = socket.gethostname()
 
 port = 6001
 
-#screen_name = input("choose a screen name : ")
-
-client.connect((ipaddress, port))
-serverWelcome = client.recv(1024).decode()
-print(f'server is saying{serverWelcome}')
 
 
-def send_msg(client , text):
+class Client:
+    def __init__(self, ipaddress , port):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.ipaddress = ipaddress
+        self.port = port
+        self.client.connect((self.ipaddress, self.port))
+    def send_msg(self, text):
+        self.client.send(text.encode())
+
+    def recive(self):
+        msg = self.client.recv(1024)
+        return msg.decode()
+    def close_connection(self):
+        self.client.close()
 
 
-    client.send(text.encode())
+
+def main():
+    client = Client(ipaddress,port)
+    welcomemsg = client.recive()
+    print(f'server is saying{welcomemsg}')
+    alias = input('Alias: ')
+    client.send_msg(alias)
+    while True:
+        text = input('--->')
+        client.send_msg(text)
+        if text.upper()== 'QUIT':
+            break
+    client.close_connection()
+    sys.exit()
 
 
-def recive_msg(client , text):
-    msg = client.recv(1024).decode()
-    print(msg)
+if __name__ == "__main__":
+    main()
 
 
-while True:
-    text = input("-->")
-    send_msg(client,text)
-    if text.upper()=="QUIT":
-        break
-client.close()
-sys.exit()
 
