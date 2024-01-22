@@ -25,9 +25,10 @@ def recive_msg(conn, address):
         msg = conn.recv(1024).decode()
         print(f'{users_dict[conn]}: {str(msg)}')
         if msg.upper() == "QUIT":
+            print(f'{users_dict[conn]} disconnected')
             break
     conn.close()
-    sys.exit()
+
 
 
 #def send_msg(conn, msg):
@@ -36,16 +37,24 @@ def recive_msg(conn, address):
 
 
 while connected:
+    try:
+        conn, address = server.accept()
+        conn.send("connection succeful provide a screen name : ".encode())
 
-    conn, address = server.accept()
-    conn.send("connection succeful provide a screen name : --->".encode())
+        alias = conn.recv(1024).decode()
+        users_dict[conn] = alias
+        print(f"{alias} connected to the server ")
+        print(users_dict.values())
+        #msg = input('send--->')
+        #firstThread = threading.Thread(target=send_msg, args=(conn, msg))
+        #firstThread.start()
+        secondThread = threading.Thread(target=recive_msg , args=(conn,address))
+        secondThread.start()
+        secondThread.join()
+    except KeyboardInterrupt:
+        connected= False
 
-    alias = conn.recv(1024).decode()
-    users_dict[conn] = alias
-    print(f"{alias} connected to the server ")
-    print(users_dict.values())
-    #msg = input('send--->')
-    #firstThread = threading.Thread(target=send_msg, args=(conn, msg))
-    #firstThread.start()
-    secondThread = threading.Thread(target=recive_msg , args=(conn,address))
-    secondThread.start()
+        server.close()
+        print('server disconnected')
+        sys.exit()
+
